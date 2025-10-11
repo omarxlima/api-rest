@@ -1,9 +1,11 @@
 import express from 'express'
 
 const app = express()
+//indicar que o express vai trabalhar com json
+app.use(express.json())
 
 //mock de seleções
-const selecoes = [
+let selecoes = [
   { id: 1, nome: 'Brasil', 'grupo': 'G' },
   { id: 2, nome: 'Alemanha', 'grupo': 'G' },
   { id: 3, nome: 'Argentina', 'grupo': 'G' },
@@ -18,6 +20,15 @@ app.get('/', (req, res) => {
 
 app.get('/selecoes', (req, res) => {
   res.status(200).send(selecoes)
+})
+
+app.post('/selecoes', (req, res) => {
+  const novaSeleção = {
+    id: parseInt(selecoes.length + 1),
+    ...req.body
+  }
+  selecoes.push(novaSeleção)
+  res.status(201).json(novaSeleção)
 })
 
 export default app
