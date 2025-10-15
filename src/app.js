@@ -44,6 +44,17 @@ app.delete('/selecoes/:id', (req, res) => {
     }
 })
 
+app.put('/selecoes/:id', (req, res) => {
+    let index = buscarIndexSelecao(req.params.id)
+    if (index === -1) {
+        res.status(404).send({ message: 'Seleção não encontrada' })
+    } else {
+        selecoes[index].nome = req.body.nome
+        selecoes[index].grupo = req.body.grupo
+        res.json(selecoes[index])
+    }
+})
+
 app.post('/selecoes', (req, res) => {
   const novaSeleção = {
     id: parseInt(selecoes.length + 1),
