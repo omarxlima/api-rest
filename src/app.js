@@ -1,16 +1,11 @@
 import express from 'express'
 
+import conexao from '../infra/conexao.js'
+
 const app = express()
 //indicar que o express vai trabalhar com json
 app.use(express.json())
 
-//mock de seleções
-let selecoes = [
-  { id: 1, nome: 'Brasil', 'grupo': 'G' },
-  { id: 2, nome: 'Alemanha', 'grupo': 'G' },
-  { id: 3, nome: 'Argentina', 'grupo': 'G' },
-  { id: 4, nome: 'França' , 'grupo': 'G'},
-]
 
 function buscarSelecaoPorId(id) {
   return selecoes.find(selecao => selecao.id === parseInt(id))
@@ -20,48 +15,71 @@ function buscarIndexSelecao(id) {
   return selecoes.indexOf(buscarSelecaoPorId(id))
 }
 
+
+
 //rotas
-
-app.get('/', (req, res) => {
-  res.send('Hello World, mARX!')
-})
-
 app.get('/selecoes', (req, res) => {
-  res.status(200).send(selecoes)
+  //res.status(200).send(selecoes)
+  const sql = 'SELECT * FROM selecoes'
+  conexao.query(sql, (erro, resultados) => {
+    if (erro) {
+      res.status(404).send(erro)
+    } else {
+      res.status(200).json(resultados)
+    }
+  })
 })
 
 app.get('/selecoes/:id', (req, res) => {
-    res.json(buscarSelecaoPorId(req.params.id))
+  // res.json(buscarSelecaoPorId(req.params.id))
+  const id = parseInt(req.params.id)
+  const sql = 'SELECT * FROM selecoes WHERE id =?'
+  conexao.query(sql,id,(erro, resultados) => {
+    const row = resultados[0]
+    if (erro) {
+      res.status(404).send(erro)
+    } else {
+      res.status(200).json(row)
+    }
+  })
 })
 
 app.delete('/selecoes/:id', (req, res) => {
-    let index = buscarIndexSelecao(req.params.id)
-    if (index === -1) {
-        res.status(404).send({ message: 'Seleção não encontrada' })
+   const id = parseInt(req.params.id)
+  const sql = 'DELETE FROM selecoes WHERE id =?'
+  conexao.query(sql,id,(erro, resultados) => {
+    if (erro) {
+      res.status(404).send(erro)
     } else {
-        selecoes.splice(index, 1)
-        res.status(204).send()
+      res.status(204).json(resultados)
     }
+  })
 })
 
 app.put('/selecoes/:id', (req, res) => {
-    let index = buscarIndexSelecao(req.params.id)
-    if (index === -1) {
-        res.status(404).send({ message: 'Seleção não encontrada' })
+  const id = parseInt(req.params.id)
+  const selecao = req.body
+  const sql = 'UPDATE selecoes SET ? WHERE id = ?'
+  conexao.query(sql, [selecao, id], (erro, resultados) => {
+    if (erro) {
+      res.status(400).send(erro)
     } else {
-        selecoes[index].nome = req.body.nome
-        selecoes[index].grupo = req.body.grupo
-        res.json(selecoes[index])
+      res.status(200).json(resultados)
     }
+  })
 })
 
 app.post('/selecoes', (req, res) => {
-  const novaSeleção = {
-    id: parseInt(selecoes.length + 1),
-    ...req.body
-  }
-  selecoes.push(novaSeleção)
-  res.status(201).json(novaSeleção)
+  const selecao = req.body
+  const sql = 'INSERT INTO selecoes SET ?'
+  conexao.query(sql, selecao, (erro, resultados) => {
+    if (erro) {
+      res.status(400).send(erro)
+    } else {
+      res.status(201).json(resultados)
+    }
+  })
+
 })
 
 export default app
