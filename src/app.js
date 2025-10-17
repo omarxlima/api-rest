@@ -1,24 +1,14 @@
 import express from 'express'
 
-import conexao from './app/database/conexao.js'
-
-import SelecaoController from './app/controllers/SelecaoController.js'
+import routes from './app/routes.js'
 
 const app = express()
+
 //indicar que o express vai trabalhar com json
 app.use(express.json())
+//usar o router
+app.use(routes)
 
-
-//rotas
-app.get('/selecoes', SelecaoController.index)
-
-app.get('/selecoes/:id', SelecaoController.show)
-
-app.post('/selecoes', SelecaoController.store)
-
-app.put('/selecoes/:id', SelecaoController.update)
-
-app.delete('/selecoes/:id',SelecaoController.destroy) 
 
 export default app
 
