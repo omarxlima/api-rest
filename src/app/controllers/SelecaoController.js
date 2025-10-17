@@ -1,67 +1,37 @@
-import conexao from '../database/conexao.js'
+import SelecaoRepository from '../repositories/SelecaoRepository.js'
 
 class SelecaoController {
 
-    index(req, res) {
-        const sql = 'SELECT * FROM selecoes'
-        conexao.query(sql, (erro, resultados) => {
-            if (erro) {
-                res.status(404).send(erro)
-            } else {
-                res.status(200).json(resultados)
-            }
-        })
+   async index(req, res) {
+        const row = await SelecaoRepository.findAll()
+        res.status(200).json(row)
     }
 
-    show(req, res) {
-        // res.json(buscarSelecaoPorId(req.params.id))
+   async show(req, res) {
         const id = parseInt(req.params.id)
-        const sql = 'SELECT * FROM selecoes WHERE id =?'
-        conexao.query(sql, id, (erro, resultados) => {
-            const row = resultados[0]
-            if (erro) {
-                res.status(404).send(erro)
-            } else {
-                res.status(200).json(row)
-            }
-        })
+        const row = await SelecaoRepository.findById(id )
+        res.status(200).json(row)
     }
 
-    store(req, res) {
+    async store(req, res) {
         const selecao = req.body
-        const sql = 'INSERT INTO selecoes SET ?'
-        conexao.query(sql, selecao, (erro, resultados) => {
-            if (erro) {
-                res.status(400).send(erro)
-            } else {
-                res.status(201).json(resultados)
-            }
-        })
+        const row = await SelecaoRepository.create(selecao)
+        res.status(201).json(row)
+       
     }
 
-    update(req, res) {
+   async update(req, res) {
         const id = parseInt(req.params.id)
         const selecao = req.body
-        const sql = 'UPDATE selecoes SET ? WHERE id = ?'
-        conexao.query(sql, [selecao, id], (erro, resultados) => {
-            if (erro) {
-                res.status(400).send(erro)
-            } else {
-                res.status(200).json(resultados)
-            }
-        })
+        const row = await SelecaoRepository.update(selecao, id)
+        res.status(200).json(row)
+        
     }
 
-    destroy(req, res) {
+    async destroy(req, res) {
         const id = parseInt(req.params.id)
-        const sql = 'DELETE FROM selecoes WHERE id =?'
-        conexao.query(sql, id, (erro, resultados) => {
-            if (erro) {
-                res.status(404).send(erro)
-            } else {
-                res.status(204).json(resultados)
-            }
-        })
+        const row = await SelecaoRepository.destroy(id)
+        res.status(204).json(row)
     }
 
 
